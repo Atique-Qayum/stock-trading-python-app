@@ -120,7 +120,4 @@ while 'next_url' in data:
 Part of Zach Wilson's free Data Engineering Beginner Bootcamp.  
 Learn more at: [learn.dataexpert.io](https://learn.dataexpert.io)
 
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
 ```
