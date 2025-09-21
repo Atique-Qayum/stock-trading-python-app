@@ -1,5 +1,6 @@
 requests
 openai
+scheduler
 csv
 time 
 os
