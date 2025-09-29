@@ -5,3 +5,5 @@ csv
 time 
 os
 dotenv
+snowflake-connector-python
+pandas
