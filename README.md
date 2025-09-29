@@ -1,123 +1,152 @@
-```markdown
-# Stock Data Extractor 📈
+---
 
-A Python-based data pipeline that extracts real-time stock ticker information from the Polygon.io API. Built as part of Zach Wilson's Data Engineering Beginner Bootcamp.
+# Stock Data Pipeline 📈❄️
+
+A Python-based **end-to-end data pipeline** that extracts real-time stock ticker information from the [Polygon.io API](https://polygon.io/), automates ingestion with a scheduler, and loads structured data into **Snowflake** for analytics.
+
+Built as part of **Zach Wilson's Data Engineering Beginner Bootcamp**.
+
+---
 
 ## 🚀 Features
 
-- **Real-time Data Extraction**: Fetches current stock ticker data from Polygon.io API
-- **Pagination Handling**: Automatically handles API pagination through `next_url` responses
-- **Rate Limit Management**: Intelligent retry logic with strategic delays to avoid HTTP 429 errors
-- **CSV Export**: Structures and saves data to CSV format for easy analysis
-- **Error Resilience**: Comprehensive error handling for API requests, JSON parsing, and file operations
+* **Real-time Data Extraction**: Fetches stock ticker data from Polygon.io API
+* **Pagination Handling**: Automatically traverses large datasets using `next_url`
+* **Rate Limit Management**: Intelligent retry logic with strategic delays to avoid HTTP 429 errors
+* **CSV Export**: Option to save tickers locally in `tickers.csv`
+* **Snowflake Integration**: Inserts ticker data into `ATIQUE.PUBLIC.STOCK_TICKERS`
+* **Automation**: `scheduler.py` ensures the pipeline runs continuously and keeps Snowflake data fresh
+* **Error Resilience**: Robust error handling for API, JSON, and database operations
+
+---
 
 ## 📊 Results
 
-- **Successful Extraction**: 11,730 stock tickers retrieved
-- **Pages Processed**: 12 API pages paginated through seamlessly
-- **Error Handling**: Overcame API rate limiting (HTTP 429) with intelligent retry logic
+* **Successful Extraction**: 11,730+ stock tickers retrieved
+* **Pages Processed**: 12 API pages handled seamlessly
+* **Snowflake Loading**: Data written into a cloud data warehouse for analysis
+* **Continuous Updates**: Scheduler ensures fresh data without manual intervention
+
+---
 
 ## 🛠️ Installation
 
-1. **Clone the repository**:
+1. **Clone the repository**
+
    ```bash
-   git clone https://github.com/your-username/stock-data-extractor.git
-   cd stock-data-extractor
+   git clone https://github.com/your-username/stock-data-pipeline.git
+   cd stock-data-pipeline
    ```
 
-2. **Install dependencies**:
+2. **Create virtual environment**
+
+   ```bash
+   python -m venv pythonenv
+   pythonenv\Scripts\activate   # Windows (cmd)
+   source pythonenv/bin/activate  # Mac/Linux
+   ```
+
+3. **Install dependencies**
+
    ```bash
    pip install -r requirements.txt
    ```
 
-3. **Set up environment variables**:
-   - Create a `.env` file in the root directory
-   - Add your Polygon.io API key:
-     ```
-     POLYGON_API_KEY=your_api_key_here
-     ```
+4. **Set up environment variables**
+   Create a `.env` file in the root directory:
+
+   ```ini
+   POLYGON_API_KEY=your_api_key_here
+   SNOWFLAKE_USER=atiqueqayum
+   SNOWFLAKE_PASSWORD=your_password_here
+   SNOWFLAKE_ACCOUNT=hghxqvy.zt34482
+   SNOWFLAKE_DATABASE=ATIQUE
+   SNOWFLAKE_SCHEMA=PUBLIC
+   SNOWFLAKE_TABLE=STOCK_TICKERS
+   ```
+
+---
 
 ## 📋 Requirements
 
-Create a `requirements.txt` file with:
+`requirements.txt`:
+
 ```
 requests>=2.28.0
 python-dotenv>=0.19.0
+snowflake-connector-python>=3.0.0
+schedule>=1.2.0
 ```
+
+---
 
 ## 🚦 Usage
 
-Run the extractor:
+### Extract to CSV
+
 ```bash
-python stock_extractor.py
+python script.py
 ```
 
-The script will:
-- Connect to Polygon.io API
-- Handle pagination automatically
-- Save results to `tickers.csv`
-- Display real-time progress in the console
+### Load into Snowflake
+
+```bash
+python script_snowflake.py
+```
+
+### Run with Scheduler (automated pipeline)
+
+```bash
+python scheduler.py
+```
+
+---
 
 ## 📁 Output
 
-The extracted data includes:
-- Ticker symbols
-- Company names
-- Market information
-- Exchange data
-- CIK numbers
-- FIGI identifiers
-- Currency information
-- Last updated timestamps
+* **CSV Mode** → `tickers.csv` with 11,730+ rows
+* **Snowflake Mode** → Data loaded into:
 
-Sample output file: `tickers.csv` with 11,730 rows of structured data
+  ```
+  ATIQUE.PUBLIC.STOCK_TICKERS
+  ```
+* **Scheduler Mode** → Automates pipeline, inserting fresh data every interval
+
+---
 
 ## 🏗️ Architecture
 
 ```
-API Request → Pagination Handling → Rate Limit Management → Data Processing → CSV Export
+Polygon.io API → Pagination & Rate Limit Handling → 
+  ├── CSV Export (script.py)  
+  ├── Snowflake Load (script_snowflake.py)  
+  └── Scheduler Automation (scheduler.py)
 ```
 
-## 🔧 Technical Implementation
-
-### Rate Limit Solution
-```python
-# Handle Polygon API rate limits (5 requests/minute)
-REQUEST_DELAY = 12  # seconds between requests
-
-if response.status_code == 429:
-    retry_after = int(response.headers.get('Retry-After', 60))
-    print(f"Rate limited. Waiting {retry_after} seconds...")
-    time.sleep(retry_after)
-    continue
-```
-
-### Pagination Handling
-```python
-while 'next_url' in data:
-    print(f'Fetching next page: {data["next_url"]}')
-    response = requests.get(data['next_url'] + f"&apiKey={POLYGON_API_KEY}")
-    time.sleep(REQUEST_DELAY)  # Respect rate limits
-```
+---
 
 ## 📈 Challenges Overcome
 
-- **HTTP 429 Errors**: Implemented retry logic with header-based delay parsing
-- **Large Dataset Handling**: Managed pagination for 11,000+ records across 12 pages
-- **Data Consistency**: Ensured proper field mapping across all API responses
-- **Memory Management**: Optimized for efficient processing of large datasets
+* **API Rate Limits** → Solved with retries + strategic delays
+* **Large Dataset Pagination** → Extracted 11,000+ records over 12 pages
+* **Data Loading** → Mapped API fields into Snowflake table dynamically
+* **Automation** → Used Python scheduler to keep pipeline running 24/7
+
+---
 
 ## 🎯 Learning Outcomes
 
-- Real-world API integration and authentication
-- Pagination handling for large datasets
-- Rate limit management and error resilience
-- Data structuring and CSV export techniques
-- Environment variable security best practices
+* Building **real-world ETL/ELT pipelines**
+* Managing **API pagination and throttling**
+* Automating ingestion with **Python scheduler**
+* Cloud data loading into **Snowflake**
+* Following **environment variable security best practices**
+
+---
 
 ## 🙏 Acknowledgments
 
-Part of Zach Wilson's free Data Engineering Beginner Bootcamp.  
-Learn more at: [learn.dataexpert.io](https://learn.dataexpert.io)
+Part of **Zach Wilson’s Free Data Engineering Beginner Bootcamp**.
+🔗 Learn more: [learn.dataexpert.io](https://learn.dataexpert.io)
 
-```
+---
